@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    <!-- Use the Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+    <!-- Login/Register Page -->
+    <div id="auth-page" class="page active w-full max-w-lg mx-auto bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-10 border border-gray-200">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2 text-center">Welcome</h1>
+        <p class="text-gray-600 mb-8 text-center">Sign in or create an account to manage your to-do list.</p>
+
+        <!-- Login Form -->
+        <div id="login-form" class="auth-form active">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6 text-center">Sign In</h2>
+            <form id="login-form-element" class="space-y-4">
+                <div>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        placeholder="Email" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                </div>
+                <div>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        placeholder="Password" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out"
+                >
+                    Sign In
+                </button>
+            </form>
+            <div class="mt-4 text-center text-gray-600">
+                Don't have an account? <a href="#" id="show-register" class="text-blue-600 hover:text-blue-700 font-medium">Register here.</a>
+            </div>
+            <div class="mt-4 text-center">
+                <button id="anon-login-button" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+                    Or continue without an account
+                </button>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="auth-form">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6 text-center">Create an Account</h2>
+            <form id="register-form-element" class="space-y-4">
+                <div>
+                    <input 
+                        type="email" 
+                        id="register-email" 
+                        placeholder="Email" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                </div>
+                <div>
+                    <input 
+                        type="password" 
+                        id="register-password" 
+                        placeholder="Password" 
+                        required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 ease-in-out"
+                >
+                    Register
+                </button>
+            </form>
+            <div class="mt-4 text-center text-gray-600">
+                Already have an account? <a href="#" id="show-login" class="text-blue-600 hover:text-blue-700 font-medium">Sign in here.</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Page (To-Do List) -->
+    <div id="user-page" class="page w-full max-w-xl mx-auto bg-white rounded-3xl shadow-lg p-6 sm:p-8 md:p-10 border border-gray-200">
+        
+        <!-- Header Section -->
+        <header class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">My To-Do List</h1>
+            <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-full shadow-md transition-colors duration-300 ease-in-out text-sm">
+                Logout
+            </button>
+        </header>
+
+        <!-- Form for adding new tasks -->
+        <form id="add-task-form" class="flex items-center space-x-2 mb-6">
+            <input 
+                type="text" 
+                id="task-input" 
+                placeholder="What do you need to do?" 
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            >
+            <button 
+                type="submit" 
+                class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-full shadow-md transition-colors duration-300 ease-in-out flex-shrink-0"
+            >
+                Add
+            </button>
+        </form>
+
+        <!-- To-Do List Container -->
+        <ul id="task-list" class="space-y-3">
+            <!-- Tasks will be rendered here by JavaScript -->
+        </ul>
+        
+        <!-- Loading spinner -->
+        <div id="loading-spinner" class="flex justify-center items-center py-8">
+            <svg class="animate-spin h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+
+        <p id="user-id-display" class="text-xs text-gray-500 mt-4 text-center"></p>
+
+    </div>
+
+    <!-- Message Box for user feedback -->
+    <div id="message-box" class="fixed top-4 right-4 z-50 p-4 rounded-lg shadow-xl text-white font-medium hidden"></div>
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, query, onSnapshot, orderBy, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Use an IIFE (Immediately Invoked Function Expression) to avoid global scope pollution
+        (() => {
+            // --- Global State & DOM Elements ---
+            let db;
+            let auth;
+            let userId = null;
+            let unsubscribeFromTasks = null; // A variable to hold the Firestore listener's unsubscribe function
+
+            const authPage = document.getElementById('auth-page');
+            const userPage = document.getElementById('user-page');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showLoginBtn = document.getElementById('show-login');
+            const showRegisterBtn = document.getElementById('show-register');
+            const anonLoginButton = document.getElementById('anon-login-button');
+            const logoutButton = document.getElementById('logout-button');
+            const loginFormElement = document.getElementById('login-form-element');
+            const registerFormElement = document.getElementById('register-form-element');
+            const loginEmailInput = document.getElementById('login-email');
+            const loginPasswordInput = document.getElementById('login-password');
+            const registerEmailInput = document.getElementById('register-email');
+            const registerPasswordInput = document.getElementById('register-password');
+            const taskInput = document.getElementById('task-input');
+            const addTaskForm = document.getElementById('add-task-form');
+            const taskList = document.getElementById('task-list');
+            const messageBox = document.getElementById('message-box');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const userIdDisplay = document.getElementById('user-id-display');
+
+            // --- Utility Functions ---
+
+            /**
+             * Displays a temporary message box for user feedback.
+             * @param {string} message - The message to display.
+             * @param {string} type - The type of message (e.g., 'success', 'error', 'info').
+             */
+            const showMessage = (message, type) => {
+                let colorClass = 'bg-gray-800'; // default info
+                if (type === 'success') {
+                    colorClass = 'bg-green-500';
+                } else if (type === 'error') {
+                    colorClass = 'bg-red-500';
+                }
+                
+                messageBox.textContent = message;
+                messageBox.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-xl text-white font-medium ${colorClass}`;
+                messageBox.style.display = 'block';
+
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 3000);
+            };
+
+            /**
+             * Shows the specified page and hides others.
+             * @param {string} pageId - The ID of the page to show.
+             */
+            const showPage = (pageId) => {
+                const pages = document.querySelectorAll('.page');
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(pageId).classList.add('active');
+            };
+
+            /**
+             * Toggles between the login and registration forms.
+             * @param {string} formId - The ID of the form to show ('login' or 'register').
+             */
+            const showAuthForm = (formId) => {
+                loginForm.classList.remove('active');
+                registerForm.classList.remove('active');
+                document.getElementById(formId + '-form').classList.add('active');
+            };
+
+            /**
+             * Renders all tasks from the provided array to the DOM.
+             * @param {Array<Object>} tasks - An array of task objects from Firestore.
+             */
+            const renderTasks = (tasks) => {
+                taskList.innerHTML = ''; // Clear the list
+                if (tasks.length === 0) {
+                    taskList.innerHTML = `<li class="text-center text-gray-500 py-8">No tasks found. Add a new one!</li>`;
+                }
+                
+                tasks.forEach(task => {
+                    // Create the main list item element
+                    const li = document.createElement('li');
+                    li.setAttribute('data-id', task.id);
+                    
+                    // Add classes for styling and completion state
+                    let liClasses = 'flex items-center bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200 transition-all duration-300';
+                    let spanClasses = 'flex-1 ml-4 font-medium';
+                    if (task.isCompleted) {
+                        liClasses += ' line-through text-gray-400';
+                        spanClasses = 'flex-1 ml-4 font-medium text-gray-400';
+                    } else {
+                        spanClasses = 'flex-1 ml-4 text-gray-700 font-medium';
+                    }
+                    li.className = liClasses;
+
+                    // Create the checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = task.isCompleted;
+                    checkbox.className = 'task-checkbox h-5 w-5 text-blue-600 rounded-full border-gray-300 focus:ring-blue-500 cursor-pointer';
+
+                    // Create the task text span
+                    const span = document.createElement('span');
+                    span.textContent = task.text;
+                    span.className = spanClasses;
+
+                    // Create the delete button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-button p-2 text-gray-400 hover:text-red-500 transition-colors duration-200';
+                    deleteButton.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    `;
+
+                    // Append elements to the list item
+                    li.appendChild(checkbox);
+                    li.appendChild(span);
+                    li.appendChild(deleteButton);
+
+                    // Append the list item to the main list
+                    taskList.appendChild(li);
+                });
+            };
+
+            // --- Firestore Functions ---
+
+            /**
+             * Attaches a real-time listener to the tasks collection.
+             */
+            const setupTasksListener = () => {
+                if (unsubscribeFromTasks) {
+                    unsubscribeFromTasks();
+                }
+
+                // Construct the Firestore collection path for the current user
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const tasksRef = collection(db, 'artifacts', appId, 'users', userId, 'tasks');
+                const q = query(tasksRef);
+
+                loadingSpinner.style.display = 'flex';
+                taskList.style.display = 'none';
+
+                unsubscribeFromTasks = onSnapshot(q, (querySnapshot) => {
+                    const tasks = [];
+                    querySnapshot.forEach((doc) => {
+                        tasks.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sort tasks to show completed items at the bottom
+                    tasks.sort((a, b) => (a.isCompleted === b.isCompleted) ? 0 : a.isCompleted ? 1 : -1);
+
+                    renderTasks(tasks);
+                    loadingSpinner.style.display = 'none';
+                    taskList.style.display = 'block';
+                }, (error) => {
+                    console.error("Error listening to tasks:", error);
+                    showMessage('Failed to load tasks. Please try again.', 'error');
+                    loadingSpinner.style.display = 'none';
+                });
+            };
+
+            /**
+             * Adds a new task to Firestore.
+             * @param {string} text - The text of the new task.
+             */
+            const addTaskToFirestore = async (text) => {
+                if (!userId) {
+                    showMessage('Please log in to add a task.', 'error');
+                    return;
+                }
+
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const tasksRef = collection(db, 'artifacts', appId, 'users', userId, 'tasks');
+                try {
+                    await addDoc(tasksRef, {
+                        text: text,
+                        isCompleted: false,
+                        createdAt: new Date()
+                    });
+                    showMessage('Task added successfully!', 'success');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    showMessage('Failed to add task.', 'error');
+                }
+            };
+
+            /**
+             * Deletes a task from Firestore.
+             * @param {string} taskId - The ID of the task to delete.
+             */
+            const deleteTaskFromFirestore = async (taskId) => {
+                if (!userId) {
+                    showMessage('Please log in to delete a task.', 'error');
+                    return;
+                }
+
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const taskDocRef = doc(db, 'artifacts', appId, 'users', userId, 'tasks', taskId);
+                try {
+                    await deleteDoc(taskDocRef);
+                    showMessage('Task deleted.', 'info');
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                    showMessage('Failed to delete task.', 'error');
+                }
+            };
+
+            /**
+             * Toggles the completion status of a task in Firestore.
+             * @param {string} taskId - The ID of the task to update.
+             * @param {boolean} currentStatus - The current completion status.
+             */
+            const toggleTaskCompletionInFirestore = async (taskId, currentStatus) => {
+                if (!userId) {
+                    showMessage('Please log in to update a task.', 'error');
+                    return;
+                }
+                
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const taskDocRef = doc(db, 'artifacts', appId, 'users', userId, 'tasks', taskId);
+                try {
+                    await updateDoc(taskDocRef, {
+                        isCompleted: !currentStatus
+                    });
+                    showMessage(`Task marked as ${!currentStatus ? 'completed' : 'not completed'}.`, 'info');
+                } catch (e) {
+                    console.error("Error updating document: ", e);
+                    showMessage('Failed to update task.', 'error');
+                }
+            };
+            
+            // --- Initialization and Event Listeners ---
+
+            const initializeApp = async () => {
+                try {
+                    // Initialize Firebase from global config
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    // Handle authentication state changes
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            // User is signed in
+                            userId = user.uid;
+                            userIdDisplay.textContent = `User ID: ${userId}`;
+                            showPage('user-page');
+                            setupTasksListener();
+                        } else {
+                            // User is signed out
+                            userId = null;
+                            userIdDisplay.textContent = '';
+                            showPage('auth-page');
+                            if (unsubscribeFromTasks) {
+                                unsubscribeFromTasks();
+                            }
+                            taskList.innerHTML = '';
+                        }
+                    });
+
+                    // Initial sign-in with custom token if available, otherwise anonymously
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                } catch (error) {
+                    console.error("Firebase Initialization Error:", error);
+                    showMessage('Failed to initialize the app. Please try again later.', 'error');
+                    showPage('auth-page');
+                }
+            };
+
+            // Handle anonymous login button click
+            anonLoginButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signInAnonymously(auth);
+                    showMessage('Logged in anonymously!', 'success');
+                } catch (error) {
+                    console.error("Anonymous Sign-in Error:", error);
+                    showMessage('Failed to log in. Please try again.', 'error');
+                }
+            });
+
+            // Handle email/password login
+            loginFormElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showMessage('Logged in successfully!', 'success');
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    showMessage('Login failed. Check your email and password.', 'error');
+                }
+            });
+
+            // Handle email/password registration
+            registerFormElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = registerEmailInput.value;
+                const password = registerPasswordInput.value;
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showMessage('Account created successfully! You are now logged in.', 'success');
+                } catch (error) {
+                    console.error("Registration Error:", error);
+                    showMessage('Registration failed. Please try again.', 'error');
+                }
+            });
+
+            // Handle logout button click
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showMessage('Logged out successfully.', 'info');
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                    showMessage('Failed to log out. Please try again.', 'error');
+                }
+            });
+
+            // Toggle between login and register forms
+            showLoginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAuthForm('login');
+            });
+            showRegisterBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAuthForm('register');
+            });
+
+            // Handle form submission to add a new task
+            addTaskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = taskInput.value.trim();
+                if (text === '') {
+                    showMessage('Please enter a task.', 'error');
+                    return;
+                }
+                addTaskToFirestore(text);
+                taskInput.value = '';
+            });
+
+            // Handle clicks on the list (for checkboxes and delete buttons)
+            taskList.addEventListener('click', (e) => {
+                const li = e.target.closest('li');
+                if (!li) return;
+
+                const taskId = li.getAttribute('data-id');
+                const taskTextElement = li.querySelector('span');
+                
+                // If the delete button was clicked
+                if (e.target.closest('.delete-button')) {
+                    deleteTaskFromFirestore(taskId);
+                    return;
+                }
+
+                // If the checkbox was clicked
+                if (e.target.closest('.task-checkbox')) {
+                    const isCompleted = e.target.checked;
+                    toggleTaskCompletionInFirestore(taskId, !isCompleted);
+                }
+            });
+
+            // --- Initial App Start ---
+            initializeApp();
+        })();
+    </script>
+</body>
+</html>
